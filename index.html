@@ -2,557 +2,590 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Reels Notepad — Link Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Reels Notepad</title>
 <style>
   :root{
     --bg:#0f1115;
     --panel:#171a21;
-    --panel-2:#1e222b;
+    --panel-2:#1e2229;
     --border:#2a2f3a;
+    --accent:#1877f2;
+    --accent-hover:#3b8ef2;
+    --green:#1fae5c;
+    --green-hover:#25c96a;
     --text:#e8eaed;
-    --muted:#8b93a3;
-    --accent:#4f8cff;
-    --accent-2:#3f6fd6;
-    --visited:#9b6bff;
-    --success:#3ecf8e;
-    --danger:#ff6b6b;
-    --radius:14px;
-    --shadow:0 6px 24px rgba(0,0,0,0.35);
-  }
-  [data-theme="light"]{
-    --bg:#f4f6fb;
-    --panel:#ffffff;
-    --panel-2:#f0f2f8;
-    --border:#e1e5ee;
-    --text:#1b1f27;
-    --muted:#636b7a;
-    --accent:#3f6fd6;
-    --accent-2:#2f56ad;
-    --visited:#7b4bd8;
-    --success:#1fa971;
-    --danger:#e0453f;
-    --shadow:0 6px 20px rgba(20,30,60,0.08);
+    --text-dim:#9aa0a8;
+    --danger:#e0245e;
+    --visited:#888;
   }
   *{box-sizing:border-box;}
-  body{
+  html,body{
     margin:0;
-    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    padding:0;
     background:var(--bg);
     color:var(--text);
-    transition:background .25s ease,color .25s ease;
-    min-height:100vh;
-    padding-bottom:60px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  .wrap{max-width:820px;margin:0 auto;padding:18px 16px 40px;}
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:16px;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
   header{
-    display:flex;align-items:center;justify-content:space-between;
-    margin-bottom:18px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:4px 2px;
   }
   header h1{
-    font-size:1.3rem;margin:0;font-weight:700;
-    display:flex;align-items:center;gap:8px;
+    font-size:1.25rem;
+    margin:0;
   }
-  header h1 span.dot{
-    width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;
-  }
-  .theme-btn{
-    background:var(--panel);
-    border:1px solid var(--border);
-    color:var(--text);
-    border-radius:10px;
-    padding:8px 12px;
-    cursor:pointer;
+  header p{
+    margin:0;
+    color:var(--text-dim);
     font-size:0.85rem;
-    display:flex;align-items:center;gap:6px;
-    transition:transform .15s ease, background .2s ease;
   }
-  .theme-btn:active{transform:scale(0.95);}
-
   .card{
     background:var(--panel);
     border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:16px;
-    box-shadow:var(--shadow);
-    margin-bottom:18px;
-  }
-  .card h2{
-    font-size:0.95rem;
-    margin:0 0 10px;
-    color:var(--muted);
-    text-transform:uppercase;
-    letter-spacing:.04em;
-    font-weight:600;
+    border-radius:14px;
+    padding:14px;
   }
   textarea{
     width:100%;
-    min-height:120px;
+    min-height:150px;
     resize:vertical;
     background:var(--panel-2);
-    border:1px solid var(--border);
     color:var(--text);
+    border:1px solid var(--border);
     border-radius:10px;
     padding:12px;
-    font-size:0.92rem;
+    font-size:1rem;
+    line-height:1.4;
     font-family:inherit;
-    line-height:1.5;
+  }
+  textarea:focus{
     outline:none;
-    transition:border-color .2s ease;
+    border-color:var(--accent);
   }
-  textarea:focus{border-color:var(--accent);}
-
   .btn-row{
-    display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+    flex-wrap:wrap;
   }
-  button.action{
-    border:none;
+  button{
+    flex:1;
+    min-width:120px;
+    padding:12px 16px;
     border-radius:10px;
-    padding:11px 18px;
-    font-size:0.9rem;
+    border:none;
+    font-size:0.95rem;
     font-weight:600;
     cursor:pointer;
-    display:flex;align-items:center;gap:6px;
-    transition:transform .12s ease, opacity .2s ease, box-shadow .2s ease;
+    transition:background .15s ease, transform .05s ease;
   }
-  button.action:active{transform:scale(0.97);}
-  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 4px 14px rgba(79,140,255,0.35);}
-  .btn-secondary{background:var(--panel-2);color:var(--text);border:1px solid var(--border);}
-  .btn-success{background:linear-gradient(135deg,var(--success),#2fb87d);color:#06231a;}
-  .btn-danger{background:var(--panel-2);color:var(--danger);border:1px solid var(--border);}
-
-  .stats{
-    display:flex;gap:14px;flex-wrap:wrap;margin-bottom:4px;color:var(--muted);font-size:0.85rem;
+  button:active{
+    transform:scale(0.98);
   }
-  .stats b{color:var(--text);}
-
-  ol.link-list{
-    list-style:none;
-    margin:0;padding:0;
-    counter-reset:item;
+  #saveBtn{
+    background:var(--accent);
+    color:#fff;
   }
-  ol.link-list li{
-    counter-increment:item;
+  #saveBtn:hover{ background:var(--accent-hover); }
+  #clearBtn{
+    background:transparent;
+    color:var(--danger);
+    border:1px solid var(--border);
+    flex:0 0 auto;
+    min-width:90px;
+  }
+  #clearBtn:hover{
+    border-color:var(--danger);
+  }
+  .status{
+    font-size:0.8rem;
+    color:var(--text-dim);
+    min-height:1.1em;
+    margin-top:8px;
+  }
+  .hint{
+    font-size:0.78rem;
+    color:var(--text-dim);
+    margin-top:8px;
+    line-height:1.4;
+  }
+  .list-card .top-row{
     display:flex;
     align-items:center;
+    justify-content:space-between;
     gap:10px;
-    padding:12px 10px;
-    border-bottom:1px solid var(--border);
+    margin-bottom:10px;
+    flex-wrap:wrap;
   }
-  ol.link-list li:last-child{border-bottom:none;}
-  ol.link-list li::before{
-    content:counter(item);
-    min-width:26px;height:26px;
+  .list-card .top-row h2{
+    margin:0;
+    font-size:1rem;
+    color:var(--text-dim);
+    font-weight:600;
+  }
+  #copyBtn{
+    flex:0 0 auto;
+    min-width:0;
+    padding:9px 16px;
+    font-size:0.85rem;
+    background:var(--green);
+    color:#fff;
+    border:none;
+  }
+  #copyBtn:hover{
+    background:var(--green-hover);
+  }
+  ol{
+    margin:0;
+    padding-left:22px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  ol li{
     background:var(--panel-2);
     border:1px solid var(--border);
     border-radius:8px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:0.78rem;font-weight:700;color:var(--muted);
-    flex-shrink:0;
-  }
-  .link-main{
-    flex:1;
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    gap:3px;
-  }
-  /* NOTE: generated links are rendered as <span role="link"> elements, NOT
-     <a href="..."> elements. This is intentional — see JS comments. They are
-     styled identically to links but carry no navigable href whatsoever, so
-     there is zero possibility of native browser navigation occurring from
-     them, ever. All opening logic is handled entirely in JavaScript. */
-  .gen-link{
-    color:var(--accent);
-    cursor:pointer;
-    font-size:0.88rem;
+    padding:10px 12px;
     word-break:break-all;
-    transition:color .15s ease;
-    outline:none;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
   }
-  .gen-link:hover, .gen-link:focus{text-decoration:underline;}
-  .gen-link.visited{color:var(--visited);}
-  .meta-row{
-    display:flex;align-items:center;gap:8px;
+  ol li a{
+    color:var(--accent-hover);
+    text-decoration:none;
+    font-size:0.9rem;
+    flex:1 1 auto;
+    min-width:0;
   }
-  .badge{
-    font-size:0.72rem;
-    background:var(--panel-2);
+  ol li a:hover{
+    text-decoration:underline;
+  }
+  ol li a.clicked{
+    color:var(--visited);
+    text-decoration:line-through;
+  }
+  .click-count{
+    flex:0 0 auto;
+    font-size:0.78rem;
+    color:var(--text-dim);
+    background:var(--bg);
     border:1px solid var(--border);
-    color:var(--muted);
-    padding:2px 8px;
-    border-radius:20px;
+    border-radius:6px;
+    padding:2px 7px;
     white-space:nowrap;
   }
-  .badge.has-clicks{
-    color:var(--success);
-    border-color:var(--success);
-  }
   .empty-state{
-    text-align:center;color:var(--muted);padding:30px 10px;font-size:0.9rem;
+    color:var(--text-dim);
+    font-size:0.9rem;
+    text-align:center;
+    padding:20px 0;
   }
-  .toast{
-    position:fixed;
-    bottom:24px;left:50%;
-    transform:translateX(-50%) translateY(20px);
-    background:var(--panel);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:10px 18px;
-    border-radius:10px;
-    box-shadow:var(--shadow);
-    font-size:0.85rem;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .25s ease, transform .25s ease;
-    z-index:999;
+  footer{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:0.75rem;
+    padding:8px 0 20px;
   }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .hint{
-    font-size:0.78rem;color:var(--muted);margin-top:8px;line-height:1.5;
-  }
-  @media (max-width:480px){
-    .btn-row{flex-direction:column;}
-    button.action{width:100%;justify-content:center;}
-  }
+
 </style>
 </head>
 <body>
 <div class="wrap">
+
   <header>
-    <h1><span class="dot"></span>Reels Notepad</h1>
-    <button class="theme-btn" id="themeToggle">🌙 Dark</button>
+    <h1>🎬 Reels Notepad</h1>
+    <p>Type or paste comma-separated Facebook Reels links, then format them into a tracked, numbered list.</p>
   </header>
 
   <div class="card">
-    <h2>Paste Links</h2>
-    <textarea id="inputArea" placeholder="Paste bulk URLs here, separated by commas, spaces, or newlines...&#10;e.g. https://www.facebook.com/share/r/1H683XwZii/, https://www.facebook.com/share/19A3hNNERk/"></textarea>
+    <textarea id="inputArea" placeholder="Tap here — your keyboard's paste suggestion bar will let you drop in copied links, e.g.&#10;https://www.facebook.com/reel/123456, https://www.facebook.com/reel/789012" autofocus></textarea>
     <div class="btn-row">
-      <button class="action btn-primary" id="generateBtn">⚡ Generate</button>
-      <button class="action btn-secondary" id="clearInputBtn">🧹 Clear Input</button>
+      <button id="saveBtn">Format &amp; Save</button>
+      <button id="clearBtn">Clear All</button>
     </div>
-    <div class="hint">Tip: paste back a previously copied list (with serial numbers and [Clicks: N]) to restore order and click counts exactly.</div>
+    <div class="status" id="statusMsg"></div>
+    <div class="hint">Tip: tap inside the box, then use your keyboard's own "Paste" suggestion — no browser clipboard permission needed. You can paste a plain comma-separated list, or paste a previously copied "Copy All Links" list back in and its click counts will be restored.</div>
   </div>
 
-  <div class="card">
-    <h2>Generated Links</h2>
-    <div class="stats" id="statsRow"></div>
-    <ol class="link-list" id="linkList"></ol>
-    <div id="emptyState" class="empty-state">No links yet. Paste some above and hit Generate.</div>
-    <div class="btn-row">
-      <button class="action btn-success" id="copyAllBtn">📋 Copy All Links</button>
-      <button class="action btn-danger" id="resetClicksBtn">↺ Reset Clicks</button>
+  <div class="card list-card">
+    <div class="top-row">
+      <h2>Saved Links</h2>
+      <button id="copyBtn">Copy All Links</button>
+    </div>
+    <div id="listContainer">
+      <div class="empty-state">No links saved yet.</div>
     </div>
   </div>
+
+  <footer>Links keep their original www.facebook.com format. Tapping one opens Android's chooser between your two Facebook Lite apps.</footer>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script>
 (function(){
+  const STORAGE_KEY = 'reelsNotepad.savedUrls';
   const inputArea = document.getElementById('inputArea');
-  const generateBtn = document.getElementById('generateBtn');
-  const clearInputBtn = document.getElementById('clearInputBtn');
-  const linkList = document.getElementById('linkList');
-  const emptyState = document.getElementById('emptyState');
-  const statsRow = document.getElementById('statsRow');
-  const copyAllBtn = document.getElementById('copyAllBtn');
-  const resetClicksBtn = document.getElementById('resetClicksBtn');
-  const themeToggle = document.getElementById('themeToggle');
-  const toast = document.getElementById('toast');
+  const saveBtn = document.getElementById('saveBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const listContainer = document.getElementById('listContainer');
+  const statusMsg = document.getElementById('statusMsg');
 
-  const STORAGE_KEY = 'reels_notepad_state_v1';
-  const INPUT_KEY = 'reels_notepad_input_v1';
-  const THEME_KEY = 'reels_notepad_theme';
+  // In-memory copy of the currently rendered items: [{ url, clicks, visited }]
+  let currentItems = [];
 
-  let state = []; // [{url, clicks}]
-
-  // ---------- Theme ----------
-  function applyTheme(t){
-    document.documentElement.setAttribute('data-theme', t);
-    themeToggle.textContent = t === 'light' ? '☀️ Light' : '🌙 Dark';
-    localStorage.setItem(THEME_KEY, t);
-  }
-  themeToggle.addEventListener('click', ()=>{
-    const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    applyTheme(cur);
-  });
-  applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
-
-  // ---------- Toast ----------
-  let toastTimer;
-  function showToast(msg){
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=> toast.classList.remove('show'), 1800);
-  }
-
-  // ---------- Parsing ----------
-  // Handles both raw bulk input (comma/space/newline separated)
-  // AND pasted-back structured output like: "1. https://... [Clicks: 3]"
-  function parseInput(text){
-    const results = [];
-    if(!text || !text.trim()) return results;
-
-    const lines = text.split('\n');
-    lines.forEach(rawLine=>{
-      const line = rawLine.trim();
-      if(!line) return;
-
-      const clickMatch = line.match(/\[\s*clicks?\s*:\s*(\d+)\s*\]/i);
-      const clicks = clickMatch ? parseInt(clickMatch[1], 10) : 0;
-
-      let cleaned = line.replace(/\[\s*clicks?\s*:\s*\d+\s*\]/i, '');
-      cleaned = cleaned.replace(/^\s*\d+[\.\)]\s*/, '');
-
-      const urls = cleaned.match(/https?:\/\/[^\s,]+/g);
-      if(!urls) return;
-
-      if(urls.length === 1){
-        results.push({ url: cleanUrl(urls[0]), clicks: clicks });
-      } else {
-        urls.forEach(u => results.push({ url: cleanUrl(u), clicks: 0 }));
-      }
-    });
-    return results;
-  }
-
-  function cleanUrl(u){
-    return u.replace(/[,\s]+$/,'').trim();
-  }
-
-  // ---------- Rendering ----------
-  function render(){
-    linkList.innerHTML = '';
-    if(state.length === 0){
-      emptyState.style.display = 'block';
-      statsRow.innerHTML = '';
-      return;
+  // Normalize a raw string into a proper https:// web URL
+  function toCleanWebUrl(url){
+    let clean = url.trim();
+    if(!/^https?:\/\//i.test(clean)){
+      clean = 'https://' + clean.replace(/^\/\//,'');
     }
-    emptyState.style.display = 'none';
+    return clean;
+  }
 
-    const totalClicks = state.reduce((s,i)=> s + i.clicks, 0);
-    const visitedCount = state.filter(i=> i.clicks > 0).length;
-    statsRow.innerHTML = `<span><b>${state.length}</b> links</span><span><b>${visitedCount}</b> visited</span><span><b>${totalClicks}</b> total clicks</span>`;
+  // Known Facebook tracking/telemetry query params that carry no meaning
+  // for the link's destination and can break the native intent handler if
+  // left in place.
+  const FB_TRACKING_PARAMS = new Set([
+    'mibextid','fbclid','sfnsn','extid','ref','ref_component','ref_page',
+    'source','hrc','refid','notif_id','notif_t','_rdc','_rdr','eav',
+    'paipv','anchor_component','surface','if_id','hc_ref','rdid'
+  ]);
 
-    state.forEach((item, idx)=>{
-      const li = document.createElement('li');
-
-      const main = document.createElement('div');
-      main.className = 'link-main';
-
-      // IMPORTANT: this is a <span>, not an <a href="...">. It carries no
-      // native href/navigation of its own. Opening is handled exclusively
-      // by openLinkSafely() below in response to click/keyboard events.
-      const linkEl = document.createElement('span');
-      linkEl.className = 'gen-link' + (item.clicks > 0 ? ' visited' : '');
-      linkEl.textContent = item.url;
-      linkEl.setAttribute('role', 'link');
-      linkEl.setAttribute('tabindex', '0');
-      linkEl.addEventListener('click', ()=> openLinkSafely(idx));
-      linkEl.addEventListener('keydown', (e)=>{
-        if(e.key === 'Enter' || e.key === ' '){
-          e.preventDefault();
-          openLinkSafely(idx);
+  // Strips tracking junk (?mibextid=..., &sfnsn=mo, fbclid, __tn__/__cft__
+  // telemetry keys, hash fragments, etc.) from ANY Facebook link variant —
+  // facebook.com, www.facebook.com, m.facebook.com, web.facebook.com,
+  // fb.watch, /share/r/..., /reel/..., /watch/... — while carefully keeping
+  // any query param that's actually part of the link's identity (e.g. the
+  // "v" param on web.facebook.com/watch/?v=12345, which points at the
+  // actual video and is NOT tracking noise). Tracking params left in place
+  // are a common cause of the native intent silently failing to open the
+  // correct Reel/Post.
+  //
+  // The original host (www.facebook.com, m.facebook.com, fb.watch, etc.) is
+  // deliberately left untouched here — this is purely a cleanup step for
+  // what gets displayed and stored, not a redirect target rewrite.
+  function cleanFacebookUrl(rawUrl){
+    const webUrl = toCleanWebUrl(rawUrl);
+    try{
+      const u = new URL(webUrl);
+      let path = u.pathname;
+      // Normalize a single trailing slash away (but keep a bare "/")
+      if(path.length > 1 && path.endsWith('/')){
+        path = path.slice(0, -1);
+      }
+      const params = new URLSearchParams(u.search);
+      Array.from(params.keys()).forEach(key => {
+        // Strip explicitly known tracking keys, plus any Facebook internal
+        // telemetry key (they all start with a double underscore, e.g.
+        // __tn__, __cft__[0], __xts__).
+        if(FB_TRACKING_PARAMS.has(key) || key.startsWith('__')){
+          params.delete(key);
         }
       });
+      const cleanedQuery = params.toString();
+      const search = cleanedQuery ? '?' + cleanedQuery : '';
+      // Hash fragments on Facebook links are always tracking/session noise
+      // and are intentionally dropped.
+      return u.protocol + '//' + u.host + path + search;
+    }catch(e){
+      // Manual fallback for malformed pastes that URL() can't parse
+      return webUrl.split('#')[0];
+    }
+  }
 
-      const metaRow = document.createElement('div');
-      metaRow.className = 'meta-row';
-      const badge = document.createElement('span');
-      badge.className = 'badge' + (item.clicks > 0 ? ' has-clicks' : '');
-      badge.textContent = `Clicks: ${item.clicks}`;
-      metaRow.appendChild(badge);
+  // Build an Android intent:// URI tailored to this user's exact dual-Lite
+  // setup: Lite App 1 is registered as the default handler for
+  // p.facebook.com, and Lite App 2 is registered as the default handler
+  // for web.facebook.com. Routing through the bare "facebook.com" host
+  // (no package name) with an explicit VIEW action, PLUS an
+  // S.android.intent.extra.ALTERNATE_URLS extra listing both the
+  // p.facebook.com and web.facebook.com equivalents of the exact same
+  // path, is what surfaces Android's native "Open with" chooser dialog
+  // listing both installed Lite apps — instead of one silently
+  // auto-opening — because the intent now explicitly names both
+  // registered/verified alternate destinations for the OS to resolve.
+  // Whichever Lite app the user picks receives the same path, so it opens
+  // the exact same Reel, Post, or Video.
+  // Format:
+  //   intent://facebook.com/[PATH]#Intent;scheme=https;action=android.intent.action.VIEW;
+  //     S.android.intent.extra.ALTERNATE_URLS=[https://p.facebook.com/[PATH],https://web.facebook.com/[PATH]];end
+  function buildDualLiteChooserIntent(displayUrl){
+    let pathAndQuery;
+    try{
+      const u = new URL(displayUrl);
+      pathAndQuery = u.pathname + u.search;
+    }catch(e){
+      pathAndQuery = displayUrl.replace(/^https?:\/\/[^/]+/i, '');
+    }
 
-      main.appendChild(linkEl);
-      main.appendChild(metaRow);
-      li.appendChild(main);
-      linkList.appendChild(li);
+    const pFacebookUrl = 'https://p.facebook.com' + pathAndQuery;
+    const webFacebookUrl = 'https://web.facebook.com' + pathAndQuery;
+    // The ALTERNATE_URLS extra value is comma-separated and must be
+    // percent-encoded so the comma, colon, and slashes inside it don't get
+    // misread as intent:// URI syntax themselves.
+    const alternateUrls = encodeURIComponent(pFacebookUrl + ',' + webFacebookUrl);
+
+    return 'intent://facebook.com' + pathAndQuery +
+      '#Intent;scheme=https;action=android.intent.action.VIEW;' +
+      'S.android.intent.extra.ALTERNATE_URLS=' + alternateUrls + ';end';
+  }
+
+  // Matches a URL (with or without protocol) optionally followed by an
+  // embedded click-count annotation in either of the formats produced by
+  // the "Copy All Links" button, e.g.:
+  //   "1. https://facebook.com/reel/123 - ক্লিক: 5 বার"
+  //   "1. https://facebook.com/reel/123 (ক্লিক: 5 বার)"
+  //   "1. https://facebook.com/reel/123 (Clicks: 5)"
+  // It also matches bare URLs separated only by commas or newlines with no
+  // click info at all, so raw pasted lists keep working exactly as before.
+  // The path/query segment is captured broadly (letters, digits, and the
+  // usual URL punctuation including "?", "&", "=", "%") so it works across
+  // every Facebook link shape: /share/r/..., /reel/..., /watch/..., fb.watch
+  // short links, m.facebook.com, web.facebook.com, and tracking-param-heavy
+  // share links alike — the junk is stripped out afterwards, not up front.
+  const URL_WITH_CLICKS_REGEX =
+    /((?:https?:\/\/)?(?:www\.|m\.|web\.)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(?:\/[a-zA-Z0-9\-._~%/]*)?(?:\?[a-zA-Z0-9\-._~%&=]*)?)\s*(?:[-(]\s*(?:ক্লিক|Clicks?)\s*[:：]?\s*(\d+)\s*(?:বার)?\)?)?/gi;
+
+  // Scans the raw textarea content for every URL it can find, along with an
+  // optional click count sitting right next to it. Works regardless of
+  // whether entries are separated by commas, newlines, or numbered lines,
+  // and regardless of which Facebook link format or tracking params are
+  // attached — every match is normalized through cleanFacebookUrl so
+  // the same Reel pasted twice (once clean, once with ?mibextid=...)
+  // dedupes correctly and always builds a working intent link.
+  function processLinks(raw){
+    const found = new Map(); // cleanUrl -> parsedClicks (number) | null
+    let match;
+    URL_WITH_CLICKS_REGEX.lastIndex = 0;
+    while((match = URL_WITH_CLICKS_REGEX.exec(raw)) !== null){
+      let rawMatch = match[1].trim().replace(/[),.]+$/, '');
+      if(!rawMatch) continue;
+      const url = cleanFacebookUrl(rawMatch);
+      if(!url) continue;
+      const clicksStr = match[2];
+      const parsedClicks = clicksStr !== undefined ? parseInt(clicksStr, 10) : null;
+      const finalClicks = (parsedClicks !== null && !isNaN(parsedClicks)) ? parsedClicks : null;
+      const existing = found.has(url) ? found.get(url) : undefined;
+      // If this URL was already seen, keep whichever occurrence actually
+      // carried a click count rather than letting a later bare duplicate
+      // wipe out a previously parsed count.
+      found.set(url, finalClicks !== null ? finalClicks : (existing !== undefined ? existing : null));
+    }
+    return Array.from(found.entries()).map(([url, parsedClicks]) => ({ url, parsedClicks }));
+  }
+
+  // Merge freshly parsed entries with any existing click/visited data.
+  // If the pasted text itself carried a click count (from a previously
+  // copied list), that count wins and is restored as-is. Otherwise, fall
+  // back to whatever count this URL already had in memory, or 0 if new.
+  function buildItemsFromParsed(parsedEntries, previousItems){
+    const prevByUrl = new Map((previousItems || []).map(item => [item.url, item]));
+    return parsedEntries.map(({ url, parsedClicks }) => {
+      const prev = prevByUrl.get(url);
+      const clicks = parsedClicks !== null ? parsedClicks : (prev ? prev.clicks : 0);
+      return {
+        url,
+        clicks,
+        visited: clicks > 0
+      };
     });
   }
 
-  // ---------- Opening links safely (the core fix) ----------
-  //
-  // The old bug: navigating the CURRENT tab's window.location to a
-  // fb:// / intent:// URL is what let a fallback (when the target app
-  // couldn't be resolved) land Facebook's mobile web page inside this
-  // same tab. Once that happens, pressing "back" surfaces Facebook's own
-  // history, not this app.
-  //
-  // The fix has two layers:
-  //
-  //  LAYER 1 (primary): Before doing anything else, synchronously open a
-  //  BLANK new tab (window.open('', '_blank')) directly inside this click
-  //  handler, while it still counts as a genuine user gesture. Only THEN
-  //  do we point that separate tab's location at the deep link. Because
-  //  our own tab's `window.location` is never touched at any point, there
-  //  is nothing for the browser to "return to" — this tab literally never
-  //  navigates away, so it cannot be hijacked.
-  //
-  //  LAYER 2 (defensive fallback): if popups are blocked and no new tab
-  //  could be opened, we fall back to a throwaway, dynamically created
-  //  <a target="_blank"> element (never part of the persistent DOM), then
-  //  immediately scrub this tab's history entry and verify our own UI is
-  //  still mounted. If it somehow isn't (a hijack occurred anyway, e.g.
-  //  inside a restrictive embedded WebView), we force a hard reset back to
-  //  a clean Notepad — all state is already saved, so nothing is lost.
-  function openLinkSafely(idx){
-    const item = state[idx];
-    item.clicks += 1;
-    saveState();
-    render();
-
-    const url = item.url;
-    const ua = navigator.userAgent;
-    const isAndroid = /Android/i.test(ua);
-    const isIOS = /iPhone|iPad|iPod/i.test(ua);
-    const isMobile = isAndroid || isIOS;
-
-    if(!isMobile){
-      window.open(url, '_blank', 'noopener,noreferrer');
+  function renderList(items){
+    currentItems = items || [];
+    if(!items || items.length === 0){
+      listContainer.innerHTML = '<div class="empty-state">No links saved yet.</div>';
       return;
     }
+    const ol = document.createElement('ol');
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
 
-    const deepLink = isAndroid
-      ? 'intent://facewebmodal/f?href=' + encodeURIComponent(url) +
-        '#Intent;scheme=fb;package=com.facebook.katana;S.browser_fallback_url=' +
-        encodeURIComponent(url) + ';end'
-      : 'fb://facewebmodal/f?href=' + encodeURIComponent(url);
+      const a = document.createElement('a');
+      // href holds the exact dual-app intent (with the ALTERNATE_URLS extra
+      // pointing at both p.facebook.com and web.facebook.com), so long-press
+      // / open-in-new-tab / middle-click still does something reasonable —
+      // but the actual navigation on a normal tap is intercepted and driven
+      // explicitly below.
+      a.href = buildDualLiteChooserIntent(item.url);
+      a.textContent = item.url;
+      a.rel = 'noopener noreferrer';
+      a.dataset.index = String(index);
+      if(item.visited) a.classList.add('clicked');
 
-    let externalTab = null;
+      const counter = document.createElement('span');
+      counter.className = 'click-count';
+      counter.textContent = `ক্লিক: ${item.clicks} বার`;
+
+      a.addEventListener('click', (e) => {
+        // Intercept the default click/navigation behavior so we can build
+        // and dispatch the dual-app intent explicitly. The
+        // ALTERNATE_URLS extra naming both p.facebook.com and
+        // web.facebook.com is what surfaces Android's native "Open with"
+        // chooser listing both installed Lite apps.
+        e.preventDefault();
+
+        item.clicks += 1;
+        item.visited = true;
+        a.classList.add('clicked');
+        counter.textContent = `ক্লিক: ${item.clicks} বার`;
+        saveItems(currentItems);
+
+        const intentUri = buildDualLiteChooserIntent(item.url);
+        window.location.href = intentUri;
+      });
+
+      li.appendChild(a);
+      li.appendChild(counter);
+      ol.appendChild(li);
+    });
+    listContainer.innerHTML = '';
+    listContainer.appendChild(ol);
+  }
+
+  function loadSaved(){
     try{
-      externalTab = window.open('', '_blank');
-    }catch(err){ externalTab = null; }
-
-    if(externalTab){
-      try{ externalTab.opener = null; }catch(err){}
-      try{
-        externalTab.location.href = deepLink;
-      }catch(err){
-        // some browsers throw on unknown custom schemes even in a blank tab — ignore
-      }
-    } else {
-      // Popup blocked: fall back to a throwaway anchor, never added to the
-      // page's persistent DOM/history.
-      const tempLink = document.createElement('a');
-      tempLink.href = deepLink;
-      tempLink.target = '_blank';
-      tempLink.rel = 'noopener noreferrer';
-      tempLink.style.display = 'none';
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      document.body.removeChild(tempLink);
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed)) return [];
+      // Migrate legacy plain-string-array format if present
+      return parsed.map(entry => {
+        if(typeof entry === 'string'){
+          return { url: entry, clicks: 0, visited: false };
+        }
+        return {
+          url: entry.url,
+          clicks: typeof entry.clicks === 'number' ? entry.clicks : 0,
+          visited: !!entry.visited
+        };
+      });
+    }catch(e){
+      console.error('Failed to load saved urls', e);
+      return [];
     }
-
-    // Defensive safety net — cheap and non-disruptive on the normal path
-    // (no reload happens unless something actually went wrong).
-    setTimeout(()=>{
-      try{
-        window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      }catch(err){ /* ignore */ }
-
-      const stillMounted = !!document.getElementById('linkList');
-      if(!stillMounted){
-        // Something replaced our page's DOM outright — force a hard,
-        // clean reload. All state is in localStorage, so it comes right back.
-        window.location.replace(window.location.pathname + window.location.search);
-      }
-    }, 150);
   }
 
-  // Re-sync the UI from saved state whenever this tab becomes visible again
-  // — including returning from another app, waking the phone from sleep, or
-  // restoring from the back-forward cache. Guarantees the Notepad always
-  // shows your intact input/output, never anything else.
-  function resyncFromStorage(){
-    loadState();
-    render();
+  function saveItems(items){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      return true;
+    }catch(e){
+      console.error('Failed to save urls', e);
+      return false;
+    }
   }
-  document.addEventListener('visibilitychange', ()=>{
-    if(document.visibilityState === 'visible') resyncFromStorage();
-  });
-  window.addEventListener('pageshow', resyncFromStorage);
-  window.addEventListener('focus', resyncFromStorage);
 
-  // ---------- Actions ----------
-  generateBtn.addEventListener('click', ()=>{
-    const parsed = parseInput(inputArea.value);
-    if(parsed.length === 0){
-      showToast('No valid URLs found.');
+  function showStatus(msg, isError){
+    statusMsg.textContent = msg;
+    statusMsg.style.color = isError ? '#e0245e' : '#9aa0a8';
+    if(msg){
+      setTimeout(() => {
+        if(statusMsg.textContent === msg) statusMsg.textContent = '';
+      }, 3000);
+    }
+  }
+
+  saveBtn.addEventListener('click', () => {
+    const raw = inputArea.value;
+    const parsedEntries = processLinks(raw);
+    if(parsedEntries.length === 0){
+      showStatus('Please enter at least one URL first.', true);
       return;
     }
-    state = parsed;
-    saveState();
-    saveInput();
-    render();
-    showToast(`Generated ${state.length} link${state.length>1?'s':''}.`);
+    const items = buildItemsFromParsed(parsedEntries, currentItems);
+    const ok = saveItems(items);
+    renderList(items);
+    const restoredCount = parsedEntries.filter(e => e.parsedClicks !== null).length;
+    if(ok){
+      const restoredNote = restoredCount > 0
+        ? ` (restored click counts for ${restoredCount})`
+        : '';
+      showStatus(`Saved ${items.length} link${items.length !== 1 ? 's' : ''}${restoredNote}.`, false);
+    }else{
+      showStatus('Could not save to local storage.', true);
+    }
   });
 
-  clearInputBtn.addEventListener('click', ()=>{
+  clearBtn.addEventListener('click', () => {
+    if(!confirm('Clear the textarea and all saved links?')) return;
     inputArea.value = '';
-    saveInput();
+    localStorage.removeItem(STORAGE_KEY);
+    renderList([]);
+    showStatus('Cleared.', false);
     inputArea.focus();
   });
 
-  copyAllBtn.addEventListener('click', ()=>{
-    if(state.length === 0){
-      showToast('Nothing to copy yet.');
+  // Bulk copy: builds a structured plain-text list (URL + click count) and
+  // writes it to the clipboard. This is a WRITE operation, which browsers
+  // and Android WebViews treat far more permissively than clipboard reads,
+  // but we still layer in a manual fallback for older/stricter WebViews.
+  copyBtn.addEventListener('click', async () => {
+    if(!currentItems.length){
+      showStatus('Nothing to copy yet.', true);
       return;
     }
-    const out = state.map((item, i)=> `${i+1}. ${item.url} [Clicks: ${item.clicks}]`).join('\n');
-    navigator.clipboard.writeText(out).then(()=>{
-      showToast('All links copied to clipboard!');
-    }).catch(()=>{
-      const ta = document.createElement('textarea');
-      ta.value = out;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('All links copied to clipboard!');
-    });
-  });
+    const text = currentItems
+      .map((item, i) => `${i + 1}. ${item.url} - ক্লিক: ${item.clicks} বার`)
+      .join('\n');
 
-  resetClicksBtn.addEventListener('click', ()=>{
-    if(state.length === 0) return;
-    state = state.map(i=> ({ url:i.url, clicks:0 }));
-    saveState();
-    render();
-    showToast('Click counts reset.');
-  });
-
-  // ---------- Persistence ----------
-  function saveState(){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ /* ignore quota errors */ }
-  }
-  function loadState(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){
-        const parsed = JSON.parse(raw);
-        if(Array.isArray(parsed)) state = parsed;
+    let copied = false;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      try{
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      }catch(e){
+        console.warn('navigator.clipboard.writeText failed, trying fallback', e);
       }
-    }catch(e){ state = []; }
-  }
-  function saveInput(){
-    try{ localStorage.setItem(INPUT_KEY, inputArea.value); }catch(e){ /* ignore */ }
-  }
-  function loadInput(){
-    try{
-      const raw = localStorage.getItem(INPUT_KEY);
-      if(raw) inputArea.value = raw;
-    }catch(e){ /* ignore */ }
-  }
-  let inputSaveTimer;
-  inputArea.addEventListener('input', ()=>{
-    clearTimeout(inputSaveTimer);
-    inputSaveTimer = setTimeout(saveInput, 300);
+    }
+    if(!copied){
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(ta);
+      }catch(e2){
+        console.error('Fallback copy failed', e2);
+      }
+    }
+    if(copied){
+      showStatus('Copied all links to clipboard.', false);
+    }else{
+      showStatus('Could not copy automatically — long-press the list to copy manually.', true);
+    }
   });
 
-  loadState();
-  loadInput();
-  render();
+  // Restore saved data and auto-focus the textarea so the mobile keyboard
+  // (with its native paste suggestion bar) opens immediately — no
+  // navigator.clipboard or document.execCommand('paste') calls involved.
+  window.addEventListener('load', () => {
+    const saved = loadSaved();
+    if(saved.length){
+      inputArea.value = saved.map(item => item.url).join(', ');
+      renderList(saved);
+    }
+    inputArea.focus();
+  });
 })();
 </script>
 </body>
