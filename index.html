@@ -2,318 +2,439 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Smart URL Notepad</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Reels Notepad</title>
 <style>
-:root{
-    --bg:#f4f6fb;
-    --card:#ffffff;
-    --text:#222;
-    --muted:#666;
-    --border:#dcdcdc;
-    --primary:#2563eb;
-    --visited:#8b5cf6;
-    --badge:#1f2937;
-    --badgeText:#fff;
-}
-
-@media (prefers-color-scheme:dark){
-
-:root{
+  :root{
     --bg:#0f1115;
-    --card:#1a1d24;
-    --text:#f2f2f2;
-    --muted:#9ca3af;
-    --border:#31343d;
-    --primary:#60a5fa;
-    --visited:#c084fc;
-    --badge:#374151;
-    --badgeText:#fff;
-}
-
-}
-
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:Arial,Helvetica,sans-serif;
-}
-
-body{
-background:var(--bg);
-color:var(--text);
-padding:20px;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-}
-
-.card{
-background:var(--card);
-border:1px solid var(--border);
-border-radius:12px;
-padding:20px;
-box-shadow:0 10px 20px rgba(0,0,0,.08);
-}
-
-h1{
-margin-bottom:15px;
-text-align:center;
-}
-
-textarea{
-width:100%;
-height:180px;
-padding:15px;
-border-radius:10px;
-border:1px solid var(--border);
-background:transparent;
-color:var(--text);
-resize:vertical;
-font-size:15px;
-}
-
-.buttons{
-display:flex;
-gap:10px;
-margin-top:15px;
-flex-wrap:wrap;
-}
-
-button{
-padding:12px 18px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.process{
-background:#2563eb;
-color:white;
-}
-
-.copy{
-background:#16a34a;
-color:white;
-}
-
-.clear{
-background:#dc2626;
-color:white;
-}
-
-#status{
-margin-top:12px;
-font-size:14px;
-color:var(--muted);
-}
-
-.output{
-margin-top:25px;
-}
-
-ol{
-padding-left:25px;
-}
-
-li{
-margin-bottom:14px;
-line-height:1.7;
-word-break:break-word;
-}
-
-a{
-color:var(--primary);
-text-decoration:none;
-}
-
-a:hover{
-text-decoration:underline;
-}
-
-a.visited{
-color:var(--visited);
-}
-
-.badge{
-display:inline-block;
-margin-left:10px;
-background:var(--badge);
-color:var(--badgeText);
-padding:3px 8px;
-border-radius:30px;
-font-size:12px;
-}
-
-@media(max-width:600px){
-
-button{
-width:100%;
-}
-
-}
+    --panel:#171a21;
+    --panel-2:#1e2229;
+    --border:#2a2f3a;
+    --accent:#1877f2;
+    --accent-hover:#3b8ef2;
+    --text:#e8eaed;
+    --text-dim:#9aa0a8;
+    --danger:#e0245e;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:16px;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  header{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:4px 2px;
+  }
+  header h1{
+    font-size:1.25rem;
+    margin:0;
+  }
+  header p{
+    margin:0;
+    color:var(--text-dim);
+    font-size:0.85rem;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+  }
+  textarea{
+    width:100%;
+    min-height:150px;
+    resize:vertical;
+    background:var(--panel-2);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px;
+    font-size:1rem;
+    line-height:1.4;
+    font-family:inherit;
+  }
+  textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+  }
+  .btn-row{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+  button{
+    flex:1;
+    min-width:120px;
+    padding:12px 16px;
+    border-radius:10px;
+    border:none;
+    font-size:0.95rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s ease, transform .05s ease;
+  }
+  button:active{
+    transform:scale(0.98);
+  }
+  #saveBtn{
+    background:var(--accent);
+    color:#fff;
+  }
+  #saveBtn:hover{ background:var(--accent-hover); }
+  #clearBtn{
+    background:transparent;
+    color:var(--danger);
+    border:1px solid var(--border);
+    flex:0 0 auto;
+    min-width:90px;
+  }
+  #clearBtn:hover{
+    border-color:var(--danger);
+  }
+  .status{
+    font-size:0.8rem;
+    color:var(--text-dim);
+    min-height:1.1em;
+    margin-top:8px;
+  }
+  .list-card h2{
+    font-size:1rem;
+    margin:0 0 10px 0;
+    color:var(--text-dim);
+    font-weight:600;
+  }
+  ol{
+    margin:0;
+    padding-left:22px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  ol li{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+    word-break:break-all;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+  }
+  ol li a{
+    color:var(--accent-hover);
+    text-decoration:none;
+    font-size:0.9rem;
+    flex:1 1 auto;
+    min-width:0;
+  }
+  ol li a:hover{
+    text-decoration:underline;
+  }
+  ol li a.visited{
+    color:#777;
+  }
+  .click-count{
+    flex:0 0 auto;
+    font-size:0.78rem;
+    color:var(--text-dim);
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:2px 7px;
+    white-space:nowrap;
+  }
+  .list-card .top-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .list-card .top-row h2{
+    margin:0;
+  }
+  #copyBtn{
+    flex:0 0 auto;
+    min-width:0;
+    padding:8px 14px;
+    font-size:0.82rem;
+    background:var(--panel-2);
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  #copyBtn:hover{
+    border-color:var(--accent);
+    color:var(--accent-hover);
+  }
+  .empty-state{
+    color:var(--text-dim);
+    font-size:0.9rem;
+    text-align:center;
+    padding:20px 0;
+  }
+  footer{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:0.75rem;
+    padding:8px 0 20px;
+  }
 </style>
-
 </head>
-
 <body>
+<div class="wrap">
 
-<div class="container">
+  <header>
+    <h1>🎬 Reels Notepad</h1>
+    <p>Paste comma-separated Facebook Reels links, format them into a numbered list with click tracking, and they'll auto-save.</p>
+  </header>
 
-<div class="card">
+  <div class="card">
+    <textarea id="inputArea" placeholder="Paste URLs separated by commas, e.g.&#10;https://www.facebook.com/reel/123456, https://www.facebook.com/reel/789012"></textarea>
+    <div class="btn-row">
+      <button id="saveBtn">Format &amp; Save</button>
+      <button id="clearBtn">Clear All</button>
+    </div>
+    <div class="status" id="statusMsg"></div>
+  </div>
 
-<h1>Smart URL Notepad</h1>
+  <div class="card list-card">
+    <div class="top-row">
+      <h2>Saved Links</h2>
+      <button id="copyBtn">Copy Formatted Content</button>
+    </div>
+    <div id="listContainer">
+      <div class="empty-state">No links saved yet.</div>
+    </div>
+  </div>
 
-<textarea id="input"
-placeholder="Paste URLs separated by commas, spaces or new lines..."></textarea>
-
-<div class="buttons">
-
-<button class="process" onclick="processLinks()">Process Links</button>
-
-<button class="copy" onclick="copyFormatted()">Copy All Formatted Links</button>
-
-<button class="clear" onclick="clearAll()">Clear</button>
-
-</div>
-
-<div id="status"></div>
-
-<div class="output">
-<ol id="list"></ol>
-</div>
-
-</div>
-
+  <footer>Links use Android intent:// URLs to open each Reel directly in Facebook Lite, with a browser fallback if it's not installed.</footer>
 </div>
 
 <script>
+(function(){
+  const STORAGE_KEY = 'reelsNotepad.savedUrls';
+  const inputArea = document.getElementById('inputArea');
+  const saveBtn = document.getElementById('saveBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const listContainer = document.getElementById('listContainer');
+  const statusMsg = document.getElementById('statusMsg');
 
-const visitData={};
+  // In-memory copy of the currently rendered items: [{ url, clicks, visited }]
+  let currentItems = [];
 
-function processLinks(){
+  // Normalize a raw string into a proper https:// web URL
+  function toCleanWebUrl(url){
+    let clean = url.trim();
+    if(!/^https?:\/\//i.test(clean)){
+      clean = 'https://' + clean.replace(/^\/\//,'');
+    }
+    return clean;
+  }
 
-const input=document.getElementById("input").value;
+  // Build an Android intent:// deep link that forces the link to open
+  // inside the Facebook Lite app (com.facebook.lite) for that specific
+  // Reel/Post, falling back to the normal web URL if Lite isn't installed.
+  function toFacebookLiteIntentLink(url){
+    const webUrl = toCleanWebUrl(url);
+    let hostAndPath;
+    try{
+      const u = new URL(webUrl);
+      // intent:// expects the scheme stripped off, e.g. facebook.com/share/r/XXXX
+      hostAndPath = u.host + u.pathname + u.search;
+    }catch(e){
+      // If parsing fails, strip the protocol manually as a fallback
+      hostAndPath = webUrl.replace(/^https?:\/\//i, '');
+    }
+    const fallback = encodeURIComponent(webUrl);
+    return 'intent://' + hostAndPath +
+      '#Intent;package=com.facebook.lite;scheme=https;' +
+      'S.browser_fallback_url=' + fallback + ';end';
+  }
 
-const urls=input.match(/https?:\/\/[^\s,]+/gi)||[];
+  function parseInputToUrls(raw){
+    return raw
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+  }
 
-const unique=[];
+  // Merge freshly parsed URLs with any existing click/visited data so that
+  // re-formatting the same list (e.g. after an edit) doesn't reset counters.
+  function buildItemsFromUrls(urls, previousItems){
+    const prevByUrl = new Map((previousItems || []).map(item => [item.url, item]));
+    return urls.map(url => {
+      const prev = prevByUrl.get(url);
+      return {
+        url,
+        clicks: prev ? prev.clicks : 0,
+        visited: prev ? prev.visited : false
+      };
+    });
+  }
 
-urls.forEach(u=>{
+  function renderList(items){
+    currentItems = items || [];
+    if(!items || items.length === 0){
+      listContainer.innerHTML = '<div class="empty-state">No links saved yet.</div>';
+      return;
+    }
+    const ol = document.createElement('ol');
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
 
-u=u.trim();
+      const a = document.createElement('a');
+      a.href = toFacebookLiteIntentLink(item.url);
+      a.textContent = item.url;
+      a.rel = 'noopener noreferrer';
+      a.dataset.webUrl = toCleanWebUrl(item.url);
+      a.dataset.index = String(index);
+      if(item.visited) a.classList.add('visited');
 
-if(!unique.includes(u))
-unique.push(u);
+      const counter = document.createElement('span');
+      counter.className = 'click-count';
+      counter.textContent = `[Clicks: ${item.clicks}]`;
 
-});
+      a.addEventListener('click', () => {
+        item.clicks += 1;
+        item.visited = true;
+        a.classList.add('visited');
+        counter.textContent = `[Clicks: ${item.clicks}]`;
+        saveUrls(currentItems);
+      });
 
-const list=document.getElementById("list");
+      li.appendChild(a);
+      li.appendChild(counter);
+      ol.appendChild(li);
+    });
+    listContainer.innerHTML = '';
+    listContainer.appendChild(ol);
+  }
 
-list.innerHTML="";
+  function loadSaved(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed)) return [];
+      // Migrate legacy format (plain array of URL strings) to object format
+      return parsed.map(entry => {
+        if(typeof entry === 'string'){
+          return { url: entry, clicks: 0, visited: false };
+        }
+        return {
+          url: entry.url,
+          clicks: typeof entry.clicks === 'number' ? entry.clicks : 0,
+          visited: !!entry.visited
+        };
+      });
+    }catch(e){
+      console.error('Failed to load saved urls', e);
+      return [];
+    }
+  }
 
-unique.forEach((url,index)=>{
+  function saveUrls(items){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      return true;
+    }catch(e){
+      console.error('Failed to save urls', e);
+      return false;
+    }
+  }
 
-if(!(url in visitData)){
-visitData[url]=0;
-}
+  function showStatus(msg, isError){
+    statusMsg.textContent = msg;
+    statusMsg.style.color = isError ? '#e0245e' : '#9aa0a8';
+    if(msg){
+      setTimeout(() => {
+        if(statusMsg.textContent === msg) statusMsg.textContent = '';
+      }, 3000);
+    }
+  }
 
-const li=document.createElement("li");
+  saveBtn.addEventListener('click', () => {
+    const raw = inputArea.value;
+    const urls = parseInputToUrls(raw);
+    if(urls.length === 0){
+      showStatus('Please paste at least one URL first.', true);
+      return;
+    }
+    const items = buildItemsFromUrls(urls, currentItems);
+    const ok = saveUrls(items);
+    renderList(items);
+    if(ok){
+      showStatus(`Saved ${items.length} link${items.length !== 1 ? 's' : ''}.`, false);
+    }else{
+      showStatus('Could not save to local storage.', true);
+    }
+  });
 
-const a=document.createElement("a");
+  clearBtn.addEventListener('click', () => {
+    if(!confirm('Clear the textarea and all saved links?')) return;
+    inputArea.value = '';
+    localStorage.removeItem(STORAGE_KEY);
+    renderList([]);
+    showStatus('Cleared.', false);
+  });
 
-a.href=url;
-a.target="_blank";
-a.rel="noopener";
+  copyBtn.addEventListener('click', async () => {
+    if(!currentItems.length){
+      showStatus('Nothing to copy yet.', true);
+      return;
+    }
+    const text = currentItems
+      .map((item, i) => `${i + 1}. ${item.url} [Clicks: ${item.clicks}]`)
+      .join('\n');
+    try{
+      await navigator.clipboard.writeText(text);
+      showStatus('Copied formatted list to clipboard.', false);
+    }catch(e){
+      // Fallback for browsers/contexts without Clipboard API access
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showStatus('Copied formatted list to clipboard.', false);
+      }catch(e2){
+        console.error('Copy failed', e2);
+        showStatus('Could not copy to clipboard.', true);
+      }
+    }
+  });
 
-a.textContent=url;
-
-if(visitData[url]>0){
-a.classList.add("visited");
-}
-
-const badge=document.createElement("span");
-
-badge.className="badge";
-
-badge.textContent="Visited: "+visitData[url];
-
-a.addEventListener("click",function(){
-
-visitData[url]++;
-
-badge.textContent="Visited: "+visitData[url];
-
-a.classList.add("visited");
-
-});
-
-li.appendChild(a);
-
-li.appendChild(badge);
-
-list.appendChild(li);
-
-});
-
-document.getElementById("status").textContent=
-unique.length+" link(s) processed.";
-
-}
-
-async function copyFormatted(){
-
-const list=document.querySelectorAll("#list li");
-
-if(list.length===0){
-
-alert("No processed links.");
-
-return;
-
-}
-
-let text="";
-
-list.forEach((item,index)=>{
-
-const url=item.querySelector("a").href;
-
-text+=(index+1)+". "+url+"\n";
-
-});
-
-try{
-
-await navigator.clipboard.writeText(text);
-
-document.getElementById("status").textContent="Formatted list copied.";
-
-}catch(e){
-
-alert("Clipboard permission denied.");
-
-}
-
-}
-
-function clearAll(){
-
-document.getElementById("input").value="";
-
-document.getElementById("list").innerHTML="";
-
-document.getElementById("status").textContent="";
-
-}
-
+  // Restore on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = loadSaved();
+    if(saved.length){
+      inputArea.value = saved.map(item => item.url).join(', ');
+      renderList(saved);
+    }
+  });
+})();
 </script>
-
 </body>
 </html>
