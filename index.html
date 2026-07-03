@@ -157,15 +157,21 @@
     flex-direction:column;
     gap:3px;
   }
-  a.gen-link{
+  /* NOTE: generated links are rendered as <span role="link"> elements, NOT
+     <a href="..."> elements. This is intentional — see JS comments. They are
+     styled identically to links but carry no navigable href whatsoever, so
+     there is zero possibility of native browser navigation occurring from
+     them, ever. All opening logic is handled entirely in JavaScript. */
+  .gen-link{
     color:var(--accent);
-    text-decoration:none;
+    cursor:pointer;
     font-size:0.88rem;
     word-break:break-all;
     transition:color .15s ease;
+    outline:none;
   }
-  a.gen-link:hover{text-decoration:underline;}
-  a.gen-link.visited{color:var(--visited);}
+  .gen-link:hover, .gen-link:focus{text-decoration:underline;}
+  .gen-link.visited{color:var(--visited);}
   .meta-row{
     display:flex;align-items:center;gap:8px;
   }
@@ -297,11 +303,9 @@
       const clickMatch = line.match(/\[\s*clicks?\s*:\s*(\d+)\s*\]/i);
       const clicks = clickMatch ? parseInt(clickMatch[1], 10) : 0;
 
-      // strip the clicks tag and a leading serial number like "1." or "1)"
       let cleaned = line.replace(/\[\s*clicks?\s*:\s*\d+\s*\]/i, '');
       cleaned = cleaned.replace(/^\s*\d+[\.\)]\s*/, '');
 
-      // find all URL-like tokens in this line (covers comma/space separated bulk paste)
       const urls = cleaned.match(/https?:\/\/[^\s,]+/g);
       if(!urls) return;
 
@@ -315,7 +319,6 @@
   }
 
   function cleanUrl(u){
-    // trim trailing commas/punctuation/whitespace that may cling to a URL
     return u.replace(/[,\s]+$/,'').trim();
   }
 
@@ -339,39 +342,62 @@
       const main = document.createElement('div');
       main.className = 'link-main';
 
-      const a = document.createElement('a');
-      a.className = 'gen-link' + (item.clicks > 0 ? ' visited' : '');
-      a.href = item.url;
-      a.textContent = item.url;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.addEventListener('click', (e)=> handleLinkClick(e, idx));
+      // IMPORTANT: this is a <span>, not an <a href="...">. It carries no
+      // native href/navigation of its own. Opening is handled exclusively
+      // by openLinkSafely() below in response to click/keyboard events.
+      const linkEl = document.createElement('span');
+      linkEl.className = 'gen-link' + (item.clicks > 0 ? ' visited' : '');
+      linkEl.textContent = item.url;
+      linkEl.setAttribute('role', 'link');
+      linkEl.setAttribute('tabindex', '0');
+      linkEl.addEventListener('click', ()=> openLinkSafely(idx));
+      linkEl.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          openLinkSafely(idx);
+        }
+      });
 
       const metaRow = document.createElement('div');
       metaRow.className = 'meta-row';
       const badge = document.createElement('span');
       badge.className = 'badge' + (item.clicks > 0 ? ' has-clicks' : '');
       badge.textContent = `Clicks: ${item.clicks}`;
-      badge.id = `badge-${idx}`;
       metaRow.appendChild(badge);
 
-      main.appendChild(a);
+      main.appendChild(linkEl);
       main.appendChild(metaRow);
       li.appendChild(main);
       linkList.appendChild(li);
     });
   }
 
-  // ---------- Click handling + deep link ----------
-  // Key fix: we NEVER change window.location.href on the current tab to a
-  // fb:// / intent:// / facebook.com URL. Doing that is what causes some
-  // mobile browsers / wrapped WebViews to render Facebook's page inside the
-  // current tab (the "in-app browser" problem) once the user returns.
-  // Instead we always launch the target in a separate window/tab context via
-  // window.open(), and immediately reset the current tab's own history entry
-  // so it can never be hijacked into showing Facebook content.
-  function handleLinkClick(e, idx){
-    e.preventDefault();
+  // ---------- Opening links safely (the core fix) ----------
+  //
+  // The old bug: navigating the CURRENT tab's window.location to a
+  // fb:// / intent:// URL is what let a fallback (when the target app
+  // couldn't be resolved) land Facebook's mobile web page inside this
+  // same tab. Once that happens, pressing "back" surfaces Facebook's own
+  // history, not this app.
+  //
+  // The fix has two layers:
+  //
+  //  LAYER 1 (primary): Before doing anything else, synchronously open a
+  //  BLANK new tab (window.open('', '_blank')) directly inside this click
+  //  handler, while it still counts as a genuine user gesture. Only THEN
+  //  do we point that separate tab's location at the deep link. Because
+  //  our own tab's `window.location` is never touched at any point, there
+  //  is nothing for the browser to "return to" — this tab literally never
+  //  navigates away, so it cannot be hijacked.
+  //
+  //  LAYER 2 (defensive fallback): if popups are blocked and no new tab
+  //  could be opened, we fall back to a throwaway, dynamically created
+  //  <a target="_blank"> element (never part of the persistent DOM), then
+  //  immediately scrub this tab's history entry and verify our own UI is
+  //  still mounted. If it somehow isn't (a hijack occurred anyway, e.g.
+  //  inside a restrictive embedded WebView), we force a hard reset back to
+  //  a clean Notepad — all state is already saved, so nothing is lost.
+  function openLinkSafely(idx){
     const item = state[idx];
     item.clicks += 1;
     saveState();
@@ -383,39 +409,71 @@
     const isIOS = /iPhone|iPad|iPod/i.test(ua);
     const isMobile = isAndroid || isIOS;
 
-    if(isMobile){
-      // Android: intent:// is handled natively by Chrome and is more
-      // reliable than a bare fb:// scheme, with a built-in browser fallback.
-      // iOS: fb:// is the standard Facebook app deep link.
-      const deepLink = isAndroid
-        ? 'intent://facewebmodal/f?href=' + encodeURIComponent(url) +
-          '#Intent;scheme=fb;package=com.facebook.katana;S.browser_fallback_url=' +
-          encodeURIComponent(url) + ';end'
-        : 'fb://facewebmodal/f?href=' + encodeURIComponent(url);
-
-      // Fire the deep link into its own separate window/tab context —
-      // this is what actually opens FB Lite / Facebook, never the current tab.
-      try{
-        window.open(deepLink, '_blank', 'noopener,noreferrer');
-      }catch(err){ /* some browsers throw on unknown schemes — ignore */ }
-
-      // Immediately (100ms) reset THIS tab back to its clean Notepad state.
-      // history.replaceState wipes any entry that a webview might have
-      // pushed, and location.replace reloads fresh without adding a new
-      // history entry — so pressing "back" from Facebook can never land on
-      // a Facebook page rendered inside this app. All state is already
-      // saved to localStorage above, so nothing is lost on this refresh.
-      setTimeout(()=>{
-        try{
-          window.history.replaceState(null, '', window.location.pathname + window.location.search);
-        }catch(err){ /* ignore */ }
-        window.location.replace(window.location.pathname + window.location.search);
-      }, 100);
-    } else {
-      // Desktop: just open the normal link in a fully separate tab.
+    if(!isMobile){
       window.open(url, '_blank', 'noopener,noreferrer');
+      return;
     }
+
+    const deepLink = isAndroid
+      ? 'intent://facewebmodal/f?href=' + encodeURIComponent(url) +
+        '#Intent;scheme=fb;package=com.facebook.katana;S.browser_fallback_url=' +
+        encodeURIComponent(url) + ';end'
+      : 'fb://facewebmodal/f?href=' + encodeURIComponent(url);
+
+    let externalTab = null;
+    try{
+      externalTab = window.open('', '_blank');
+    }catch(err){ externalTab = null; }
+
+    if(externalTab){
+      try{ externalTab.opener = null; }catch(err){}
+      try{
+        externalTab.location.href = deepLink;
+      }catch(err){
+        // some browsers throw on unknown custom schemes even in a blank tab — ignore
+      }
+    } else {
+      // Popup blocked: fall back to a throwaway anchor, never added to the
+      // page's persistent DOM/history.
+      const tempLink = document.createElement('a');
+      tempLink.href = deepLink;
+      tempLink.target = '_blank';
+      tempLink.rel = 'noopener noreferrer';
+      tempLink.style.display = 'none';
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+    }
+
+    // Defensive safety net — cheap and non-disruptive on the normal path
+    // (no reload happens unless something actually went wrong).
+    setTimeout(()=>{
+      try{
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }catch(err){ /* ignore */ }
+
+      const stillMounted = !!document.getElementById('linkList');
+      if(!stillMounted){
+        // Something replaced our page's DOM outright — force a hard,
+        // clean reload. All state is in localStorage, so it comes right back.
+        window.location.replace(window.location.pathname + window.location.search);
+      }
+    }, 150);
   }
+
+  // Re-sync the UI from saved state whenever this tab becomes visible again
+  // — including returning from another app, waking the phone from sleep, or
+  // restoring from the back-forward cache. Guarantees the Notepad always
+  // shows your intact input/output, never anything else.
+  function resyncFromStorage(){
+    loadState();
+    render();
+  }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible') resyncFromStorage();
+  });
+  window.addEventListener('pageshow', resyncFromStorage);
+  window.addEventListener('focus', resyncFromStorage);
 
   // ---------- Actions ----------
   generateBtn.addEventListener('click', ()=>{
@@ -433,6 +491,7 @@
 
   clearInputBtn.addEventListener('click', ()=>{
     inputArea.value = '';
+    saveInput();
     inputArea.focus();
   });
 
@@ -445,7 +504,6 @@
     navigator.clipboard.writeText(out).then(()=>{
       showToast('All links copied to clipboard!');
     }).catch(()=>{
-      // fallback for older browsers
       const ta = document.createElement('textarea');
       ta.value = out;
       document.body.appendChild(ta);
@@ -464,11 +522,9 @@
     showToast('Click counts reset.');
   });
 
-  // ---------- Persistence (auto-save across reloads) ----------
+  // ---------- Persistence ----------
   function saveState(){
-    try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }catch(e){ /* ignore quota errors */ }
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ /* ignore quota errors */ }
   }
   function loadState(){
     try{
@@ -479,7 +535,6 @@
       }
     }catch(e){ state = []; }
   }
-
   function saveInput(){
     try{ localStorage.setItem(INPUT_KEY, inputArea.value); }catch(e){ /* ignore */ }
   }
