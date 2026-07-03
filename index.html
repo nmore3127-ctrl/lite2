@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Reels Notepad — Link Manager</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#171a21;
+    --panel-2:#1e222b;
+    --border:#2a2f3a;
+    --text:#e8eaed;
+    --muted:#8b93a3;
+    --accent:#4f8cff;
+    --accent-2:#3f6fd6;
+    --visited:#9b6bff;
+    --success:#3ecf8e;
+    --danger:#ff6b6b;
+    --radius:14px;
+    --shadow:0 6px 24px rgba(0,0,0,0.35);
+  }
+  [data-theme="light"]{
+    --bg:#f4f6fb;
+    --panel:#ffffff;
+    --panel-2:#f0f2f8;
+    --border:#e1e5ee;
+    --text:#1b1f27;
+    --muted:#636b7a;
+    --accent:#3f6fd6;
+    --accent-2:#2f56ad;
+    --visited:#7b4bd8;
+    --success:#1fa971;
+    --danger:#e0453f;
+    --shadow:0 6px 20px rgba(20,30,60,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    transition:background .25s ease,color .25s ease;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:18px 16px 40px;}
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:18px;
+  }
+  header h1{
+    font-size:1.3rem;margin:0;font-weight:700;
+    display:flex;align-items:center;gap:8px;
+  }
+  header h1 span.dot{
+    width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;
+  }
+  .theme-btn{
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:10px;
+    padding:8px 12px;
+    cursor:pointer;
+    font-size:0.85rem;
+    display:flex;align-items:center;gap:6px;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .theme-btn:active{transform:scale(0.95);}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  .card h2{
+    font-size:0.95rem;
+    margin:0 0 10px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    font-weight:600;
+  }
+  textarea{
+    width:100%;
+    min-height:120px;
+    resize:vertical;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:10px;
+    padding:12px;
+    font-size:0.92rem;
+    font-family:inherit;
+    line-height:1.5;
+    outline:none;
+    transition:border-color .2s ease;
+  }
+  textarea:focus{border-color:var(--accent);}
+
+  .btn-row{
+    display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;
+  }
+  button.action{
+    border:none;
+    border-radius:10px;
+    padding:11px 18px;
+    font-size:0.9rem;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+    transition:transform .12s ease, opacity .2s ease, box-shadow .2s ease;
+  }
+  button.action:active{transform:scale(0.97);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 4px 14px rgba(79,140,255,0.35);}
+  .btn-secondary{background:var(--panel-2);color:var(--text);border:1px solid var(--border);}
+  .btn-success{background:linear-gradient(135deg,var(--success),#2fb87d);color:#06231a;}
+  .btn-danger{background:var(--panel-2);color:var(--danger);border:1px solid var(--border);}
+
+  .stats{
+    display:flex;gap:14px;flex-wrap:wrap;margin-bottom:4px;color:var(--muted);font-size:0.85rem;
+  }
+  .stats b{color:var(--text);}
+
+  ol.link-list{
+    list-style:none;
+    margin:0;padding:0;
+    counter-reset:item;
+  }
+  ol.link-list li{
+    counter-increment:item;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  ol.link-list li:last-child{border-bottom:none;}
+  ol.link-list li::before{
+    content:counter(item);
+    min-width:26px;height:26px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.78rem;font-weight:700;color:var(--muted);
+    flex-shrink:0;
+  }
+  .link-main{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  a.gen-link{
+    color:var(--accent);
+    text-decoration:none;
+    font-size:0.88rem;
+    word-break:break-all;
+    transition:color .15s ease;
+  }
+  a.gen-link:hover{text-decoration:underline;}
+  a.gen-link.visited{color:var(--visited);}
+  .meta-row{
+    display:flex;align-items:center;gap:8px;
+  }
+  .badge{
+    font-size:0.72rem;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--muted);
+    padding:2px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .badge.has-clicks{
+    color:var(--success);
+    border-color:var(--success);
+  }
+  .empty-state{
+    text-align:center;color:var(--muted);padding:30px 10px;font-size:0.9rem;
+  }
+  .toast{
+    position:fixed;
+    bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    font-size:0.85rem;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    z-index:999;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .hint{
+    font-size:0.78rem;color:var(--muted);margin-top:8px;line-height:1.5;
+  }
+  @media (max-width:480px){
+    .btn-row{flex-direction:column;}
+    button.action{width:100%;justify-content:center;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="dot"></span>Reels Notepad</h1>
+    <button class="theme-btn" id="themeToggle">🌙 Dark</button>
+  </header>
+
+  <div class="card">
+    <h2>Paste Links</h2>
+    <textarea id="inputArea" placeholder="Paste bulk URLs here, separated by commas, spaces, or newlines...&#10;e.g. https://www.facebook.com/share/r/1H683XwZii/, https://www.facebook.com/share/19A3hNNERk/"></textarea>
+    <div class="btn-row">
+      <button class="action btn-primary" id="generateBtn">⚡ Generate</button>
+      <button class="action btn-secondary" id="clearInputBtn">🧹 Clear Input</button>
+    </div>
+    <div class="hint">Tip: paste back a previously copied list (with serial numbers and [Clicks: N]) to restore order and click counts exactly.</div>
+  </div>
+
+  <div class="card">
+    <h2>Generated Links</h2>
+    <div class="stats" id="statsRow"></div>
+    <ol class="link-list" id="linkList"></ol>
+    <div id="emptyState" class="empty-state">No links yet. Paste some above and hit Generate.</div>
+    <div class="btn-row">
+      <button class="action btn-success" id="copyAllBtn">📋 Copy All Links</button>
+      <button class="action btn-danger" id="resetClicksBtn">↺ Reset Clicks</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const inputArea = document.getElementById('inputArea');
+  const generateBtn = document.getElementById('generateBtn');
+  const clearInputBtn = document.getElementById('clearInputBtn');
+  const linkList = document.getElementById('linkList');
+  const emptyState = document.getElementById('emptyState');
+  const statsRow = document.getElementById('statsRow');
+  const copyAllBtn = document.getElementById('copyAllBtn');
+  const resetClicksBtn = document.getElementById('resetClicksBtn');
+  const themeToggle = document.getElementById('themeToggle');
+  const toast = document.getElementById('toast');
+
+  const STORAGE_KEY = 'reels_notepad_state_v1';
+  const THEME_KEY = 'reels_notepad_theme';
+
+  let state = []; // [{url, clicks}]
+
+  // ---------- Theme ----------
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    themeToggle.textContent = t === 'light' ? '☀️ Light' : '🌙 Dark';
+    localStorage.setItem(THEME_KEY, t);
+  }
+  themeToggle.addEventListener('click', ()=>{
+    const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(cur);
+  });
+  applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove('show'), 1800);
+  }
+
+  // ---------- Parsing ----------
+  // Handles both raw bulk input (comma/space/newline separated)
+  // AND pasted-back structured output like: "1. https://... [Clicks: 3]"
+  function parseInput(text){
+    const results = [];
+    if(!text || !text.trim()) return results;
+
+    const lines = text.split('\n');
+    lines.forEach(rawLine=>{
+      const line = rawLine.trim();
+      if(!line) return;
+
+      const clickMatch = line.match(/\[\s*clicks?\s*:\s*(\d+)\s*\]/i);
+      const clicks = clickMatch ? parseInt(clickMatch[1], 10) : 0;
+
+      // strip the clicks tag and a leading serial number like "1." or "1)"
+      let cleaned = line.replace(/\[\s*clicks?\s*:\s*\d+\s*\]/i, '');
+      cleaned = cleaned.replace(/^\s*\d+[\.\)]\s*/, '');
+
+      // find all URL-like tokens in this line (covers comma/space separated bulk paste)
+      const urls = cleaned.match(/https?:\/\/[^\s,]+/g);
+      if(!urls) return;
+
+      if(urls.length === 1){
+        results.push({ url: cleanUrl(urls[0]), clicks: clicks });
+      } else {
+        urls.forEach(u => results.push({ url: cleanUrl(u), clicks: 0 }));
+      }
+    });
+    return results;
+  }
+
+  function cleanUrl(u){
+    // trim trailing commas/punctuation/whitespace that may cling to a URL
+    return u.replace(/[,\s]+$/,'').trim();
+  }
+
+  // ---------- Rendering ----------
+  function render(){
+    linkList.innerHTML = '';
+    if(state.length === 0){
+      emptyState.style.display = 'block';
+      statsRow.innerHTML = '';
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    const totalClicks = state.reduce((s,i)=> s + i.clicks, 0);
+    const visitedCount = state.filter(i=> i.clicks > 0).length;
+    statsRow.innerHTML = `<span><b>${state.length}</b> links</span><span><b>${visitedCount}</b> visited</span><span><b>${totalClicks}</b> total clicks</span>`;
+
+    state.forEach((item, idx)=>{
+      const li = document.createElement('li');
+
+      const main = document.createElement('div');
+      main.className = 'link-main';
+
+      const a = document.createElement('a');
+      a.className = 'gen-link' + (item.clicks > 0 ? ' visited' : '');
+      a.href = item.url;
+      a.textContent = item.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.addEventListener('click', (e)=> handleLinkClick(e, idx));
+
+      const metaRow = document.createElement('div');
+      metaRow.className = 'meta-row';
+      const badge = document.createElement('span');
+      badge.className = 'badge' + (item.clicks > 0 ? ' has-clicks' : '');
+      badge.textContent = `Clicks: ${item.clicks}`;
+      badge.id = `badge-${idx}`;
+      metaRow.appendChild(badge);
+
+      main.appendChild(a);
+      main.appendChild(metaRow);
+      li.appendChild(main);
+      linkList.appendChild(li);
+    });
+  }
+
+  // ---------- Click handling + deep link ----------
+  function handleLinkClick(e, idx){
+    e.preventDefault();
+    const item = state[idx];
+    item.clicks += 1;
+    saveState();
+    render();
+
+    const url = item.url;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if(isMobile){
+      // Try to force-open inside Facebook / FB Lite app via deep link,
+      // then fall back to the normal browser URL if the app isn't available.
+      const fbDeepLink = 'fb://facewebmodal/f?href=' + encodeURIComponent(url);
+      let appOpened = false;
+
+      const onBlur = ()=>{ appOpened = true; };
+      window.addEventListener('blur', onBlur, { once:true });
+
+      window.location.href = fbDeepLink;
+
+      setTimeout(()=>{
+        window.removeEventListener('blur', onBlur);
+        if(!appOpened){
+          window.open(url, '_blank');
+        }
+      }, 700);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  // ---------- Actions ----------
+  generateBtn.addEventListener('click', ()=>{
+    const parsed = parseInput(inputArea.value);
+    if(parsed.length === 0){
+      showToast('No valid URLs found.');
+      return;
+    }
+    state = parsed;
+    saveState();
+    render();
+    showToast(`Generated ${state.length} link${state.length>1?'s':''}.`);
+  });
+
+  clearInputBtn.addEventListener('click', ()=>{
+    inputArea.value = '';
+    inputArea.focus();
+  });
+
+  copyAllBtn.addEventListener('click', ()=>{
+    if(state.length === 0){
+      showToast('Nothing to copy yet.');
+      return;
+    }
+    const out = state.map((item, i)=> `${i+1}. ${item.url} [Clicks: ${item.clicks}]`).join('\n');
+    navigator.clipboard.writeText(out).then(()=>{
+      showToast('All links copied to clipboard!');
+    }).catch(()=>{
+      // fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = out;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('All links copied to clipboard!');
+    });
+  });
+
+  resetClicksBtn.addEventListener('click', ()=>{
+    if(state.length === 0) return;
+    state = state.map(i=> ({ url:i.url, clicks:0 }));
+    saveState();
+    render();
+    showToast('Click counts reset.');
+  });
+
+  // ---------- Persistence (auto-save across reloads) ----------
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){ /* ignore quota errors */ }
+  }
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)) state = parsed;
+      }
+    }catch(e){ state = []; }
+  }
+
+  loadState();
+  render();
+})();
+</script>
+</body>
+</html>
