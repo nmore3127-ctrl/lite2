@@ -256,6 +256,7 @@
   const toast = document.getElementById('toast');
 
   const STORAGE_KEY = 'reels_notepad_state_v1';
+  const INPUT_KEY = 'reels_notepad_input_v1';
   const THEME_KEY = 'reels_notepad_theme';
 
   let state = []; // [{url, clicks}]
@@ -362,6 +363,13 @@
   }
 
   // ---------- Click handling + deep link ----------
+  // Key fix: we NEVER change window.location.href on the current tab to a
+  // fb:// / intent:// / facebook.com URL. Doing that is what causes some
+  // mobile browsers / wrapped WebViews to render Facebook's page inside the
+  // current tab (the "in-app browser" problem) once the user returns.
+  // Instead we always launch the target in a separate window/tab context via
+  // window.open(), and immediately reset the current tab's own history entry
+  // so it can never be hijacked into showing Facebook content.
   function handleLinkClick(e, idx){
     e.preventDefault();
     const item = state[idx];
@@ -370,27 +378,42 @@
     render();
 
     const url = item.url;
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const ua = navigator.userAgent;
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isMobile = isAndroid || isIOS;
 
     if(isMobile){
-      // Try to force-open inside Facebook / FB Lite app via deep link,
-      // then fall back to the normal browser URL if the app isn't available.
-      const fbDeepLink = 'fb://facewebmodal/f?href=' + encodeURIComponent(url);
-      let appOpened = false;
+      // Android: intent:// is handled natively by Chrome and is more
+      // reliable than a bare fb:// scheme, with a built-in browser fallback.
+      // iOS: fb:// is the standard Facebook app deep link.
+      const deepLink = isAndroid
+        ? 'intent://facewebmodal/f?href=' + encodeURIComponent(url) +
+          '#Intent;scheme=fb;package=com.facebook.katana;S.browser_fallback_url=' +
+          encodeURIComponent(url) + ';end'
+        : 'fb://facewebmodal/f?href=' + encodeURIComponent(url);
 
-      const onBlur = ()=>{ appOpened = true; };
-      window.addEventListener('blur', onBlur, { once:true });
+      // Fire the deep link into its own separate window/tab context —
+      // this is what actually opens FB Lite / Facebook, never the current tab.
+      try{
+        window.open(deepLink, '_blank', 'noopener,noreferrer');
+      }catch(err){ /* some browsers throw on unknown schemes — ignore */ }
 
-      window.location.href = fbDeepLink;
-
+      // Immediately (100ms) reset THIS tab back to its clean Notepad state.
+      // history.replaceState wipes any entry that a webview might have
+      // pushed, and location.replace reloads fresh without adding a new
+      // history entry — so pressing "back" from Facebook can never land on
+      // a Facebook page rendered inside this app. All state is already
+      // saved to localStorage above, so nothing is lost on this refresh.
       setTimeout(()=>{
-        window.removeEventListener('blur', onBlur);
-        if(!appOpened){
-          window.open(url, '_blank');
-        }
-      }, 700);
+        try{
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }catch(err){ /* ignore */ }
+        window.location.replace(window.location.pathname + window.location.search);
+      }, 100);
     } else {
-      window.open(url, '_blank');
+      // Desktop: just open the normal link in a fully separate tab.
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   }
 
@@ -403,6 +426,7 @@
     }
     state = parsed;
     saveState();
+    saveInput();
     render();
     showToast(`Generated ${state.length} link${state.length>1?'s':''}.`);
   });
@@ -456,7 +480,23 @@
     }catch(e){ state = []; }
   }
 
+  function saveInput(){
+    try{ localStorage.setItem(INPUT_KEY, inputArea.value); }catch(e){ /* ignore */ }
+  }
+  function loadInput(){
+    try{
+      const raw = localStorage.getItem(INPUT_KEY);
+      if(raw) inputArea.value = raw;
+    }catch(e){ /* ignore */ }
+  }
+  let inputSaveTimer;
+  inputArea.addEventListener('input', ()=>{
+    clearTimeout(inputSaveTimer);
+    inputSaveTimer = setTimeout(saveInput, 300);
+  });
+
   loadState();
+  loadInput();
   render();
 })();
 </script>
